@@ -6,9 +6,11 @@
         @click="handleDotClick(index)"
         v-for="(blok, index) in blok.body"
         :key="index"
-        :class="{'teaser__pag-dot--current': index == currentSlide}"
+        :class="{ 'teaser__pag-dot--current': index == currentSlide }"
         class="teaser__pag-dot"
-      >Next</button>
+      >
+        Next
+      </button>
     </div>
   </div>
 </template>
@@ -17,9 +19,9 @@
 export default {
   computed: {
     slide() {
-      let slides = this.blok.body.filter((slide, index) => {
+      const slides = this.blok.body.filter((slide, index) => {
         return this.currentSlide === index;
-      })
+      });
       if (slides.length) {
         return slides[0];
       }
@@ -35,7 +37,7 @@ export default {
       this.currentSlide = index;
     }
   }
-}
+};
 </script>
 
 <style lang="scss">
