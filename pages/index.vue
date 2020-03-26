@@ -1,21 +1,51 @@
 <template>
-  <div class="container">
-    <div>
-      <logo />
-      <h1 class="title">nuxt-blog</h1>
-      <h2 class="subtitle">Full blown multi-language blog built with Nuxt.js and Storyblok</h2>
-      <div class="links">
-        <a href="https://nuxtjs.org/" target="_blank" class="button--green">Documentation</a>
-        <a href="https://github.com/nuxt/nuxt.js" target="_blank" class="button--grey">GitHub</a>
-      </div>
-    </div>
-  </div>
+  <section class="util__container">
+    <component
+      v-if="story.content.component"
+      :key="story.content._uid"
+      :blok="story.content"
+      :is="story.content.component"
+    ></component>
+  </section>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-
-export default Vue.extend({});
+<script>
+export default {
+  data: () => ({
+    story: {
+      content: {}
+    }
+  }),
+  asyncData(context) {
+    // Load the JSON from the API
+    return context.app.$storyapi.get("cdn/stories/home", {
+      version: "draft"
+    }).then((res) => {
+      return res.data
+    }).catch((res) => {
+      if (!res.response) {
+        console.error(res);
+        context.error({ statusCode: 404, message: "Failed to receive content from api" });
+      }
+    });
+  },
+  mounted() {
+    // use the bridge to listen to events
+    this.$storybridge.on(["input", "published", "change"], (event) => {
+      if (event.action == "input") {
+        if (event.story.id === this.story.id) {
+          this.story.content = event.story.content
+        }
+      } else {
+        // window.location.reload()
+        this.$nuxt.$router.go({
+          path: this.$nuxt.$router.currentRoute,
+          force: true
+        });
+      }
+    });
+  }
+}
 </script>
 
 <style>
